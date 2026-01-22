@@ -1,4 +1,4 @@
-# Krimehotpot
+# Crime Hotspot
 crime hotspot detection using geofencing and geospatial anyalsis
 
 Overview
