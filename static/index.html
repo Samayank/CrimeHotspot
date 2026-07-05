@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SafeRoute: Crime Hotspot Detection</title>
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#121212">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+
+<body>
+    <!-- Landing Page Overlay -->
+    <div id="landing-page" class="overlay">
+        <div class="overlay-content">
+            <h1>CrimeHotspot</h1>
+            <p>Your Route Safety Companion</p>
+            <div class="location-prompt">
+                <button id="locate-me-btn" class="primary-btn pulse-btn">📍 Auto-Detect My Location</button>
+
+                <div class="divider"><span>OR</span></div>
+
+                <div class="manual-location">
+                    <input type="text" id="manual-location-input" placeholder="Enter City or State (e.g., Delhi)">
+                    <button id="manual-location-btn" class="secondary-btn">Continue</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Screen Overlay -->
+    <div id="loading-screen" class="overlay hidden">
+        <div class="overlay-content">
+            <h2 id="loading-text">Analyzing Local Crime Data...</h2>
+            <div class="progress-bar-container">
+                <div class="progress-bar" id="progress-bar"></div>
+            </div>
+            <p id="loading-subtext">Fetching latest localized incident reports</p>
+        </div>
+    </div>
+
+    <!-- Mobile Sidebar Toggle -->
+    <button class="mobile-toggle" id="mobile-toggle-btn">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <line x1="3" y1="12" x2="21" y2="12"></line>
+            <line x1="3" y1="6" x2="21" y2="6"></line>
+            <line x1="3" y1="18" x2="21" y2="18"></line>
+        </svg>
+    </button>
+
+    <div id="main-app" class="app-container hidden">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar" id="sidebar">
+            <div class="header">
+                <h1>CrimeHotspot</h1>
+                <p>Navigate with confidence</p>
+            </div>
+
+            <div class="search-panel">
+                <div class="input-group">
+                    <label for="start-input">Starting Point</label>
+                    <input type="text" id="start-input" placeholder="Enter start location..." autocomplete="off">
+                    <div id="start-results" class="autocomplete-results"></div>
+                    <button id="use-my-location-btn"
+                        style="background: none; border: 1px solid var(--border); color: var(--accent); padding: 0.4rem 0.8rem; border-radius: 6px; cursor: pointer; font-size: 0.8rem; margin-top: 4px; transition: all 0.2s ease;">📍
+                        Use My Location</button>
+                </div>
+
+                <div class="input-group">
+                    <label for="dest-input">Destination</label>
+                    <input type="text" id="dest-input" placeholder="Enter destination..." autocomplete="off">
+                    <div id="dest-results" class="autocomplete-results"></div>
+                </div>
+
+                <div class="input-group">
+                    <label>Time of Travel</label>
+                    <div class="slider-container" style="display: flex; flex-direction: column; gap: 5px;">
+                        <input type="range" id="time-slider" min="0" max="23" value="12" class="time-slider">
+                        <div
+                            style="display: flex; justify-content: space-between; font-size: 0.8rem; color: var(--text-muted);">
+                            <span id="time-display">12:00 PM</span>
+                            <button id="play-time-btn"
+                                style="background: none; border: none; color: var(--accent); cursor: pointer; font-size: 0.9rem;">▶
+                                Play</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label>Safety Profile</label>
+                    <select id="safety-profile" class="form-input"
+                        style="background-color: rgba(0,0,0,0.3); border: 1px solid var(--border); color: white;">
+                        <option value="balanced">Balanced (Default)</option>
+                        <option value="safest">Maximum Safety</option>
+                        <option value="fastest">Fastest Route</option>
+                    </select>
+                </div>
+
+                <button id="find-route-btn" class="primary-btn">Find Safe Route</button>
+            </div>
+
+            <div id="status-panel" class="status-panel hidden">
+                <div class="loader hidden" id="loader"></div>
+                <div id="status-message"></div>
+
+                <div id="legend" class="legend hidden">
+                    <h3>Map Legend</h3>
+                    <div class="legend-item"><span class="color-box primary-route"></span> Primary Route</div>
+                    <div class="legend-item"><span class="color-box alt-route"></span> Alternative Safe Route</div>
+                    <div class="legend-item"><span class="color-box crime-zone"></span> High Crime Zone</div>
+                    <div class="legend-item"><span class="dot crime-point"></span> Crime Incident</div>
+                </div>
+
+                <!-- Directions Panel for Turn-by-Turn -->
+                <div id="directions-panel" class="directions-panel hidden">
+                    <h3>Turn-by-Turn Directions</h3>
+                    <ul id="directions-list"></ul>
+                </div>
+            </div>
+
+            <div class="action-buttons" style="display: flex; flex-direction: column; gap: 0.5rem; margin-top: auto;">
+                <button id="toggle-heatmap-btn" class="secondary-btn">🔥 Toggle Crime Heatmap</button>
+                <div class="tutorial-text"
+                    style="font-size: 0.8rem; color: var(--text-muted); text-align: center; margin-top: 1rem;">
+                    💡 <strong>Tip:</strong> Right-Click anywhere on the map to report a live crime incident.
+                </div>
+            </div>
+        </aside>
+
+        <!-- Map Container -->
+        <div id="map-container" class="map-container">
+            <!-- Stats Dashboard Overlay -->
+            <div class="map-stats-overlay">
+                <div class="stat-item">
+                    <span class="stat-label">Active Incidents</span>
+                    <span class="stat-value" id="stat-total">0</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Top Crime</span>
+                    <span class="stat-value" id="stat-top" style="color: var(--danger)">N/A</span>
+                </div>
+            </div>
+
+            <div id="news-ticker" class="news-ticker hidden">
+                <div class="ticker-wrap">
+                    <div class="ticker-move">
+                        <div class="ticker-item" id="ticker-text"></div>
+                    </div>
+                </div>
+            </div>
+            <div id="map"></div>
+        </div>
+    </div>
+
+    <!-- Report Modal -->
+    <div id="report-modal" class="modal hidden">
+        <div class="modal-content">
+            <span class="close-btn" id="close-modal">&times;</span>
+            <h2>Report Crime</h2>
+            <p>Please enter the details of the incident at the selected location.</p>
+
+            <div class="input-group" style="margin-top: 1rem;">
+                <label for="crime-type-select">Crime Type</label>
+                <select id="crime-type-select">
+                    <option value="Theft/Robbery">Theft/Robbery</option>
+                    <option value="Assault">Assault</option>
+                    <option value="Burglary">Burglary</option>
+                    <option value="Homicide">Homicide</option>
+                    <option value="Kidnapping">Kidnapping</option>
+                    <option value="Pickpocketing">Pickpocketing</option>
+                    <option value="Harassment">Harassment</option>
+                    <option value="Other">Other</option>
+                </select>
+            </div>
+
+            <div class="input-group" style="margin-top: 1rem;">
+                <label for="report-time">Time of Incident</label>
+                <input type="time" id="report-time">
+            </div>
+
+            <button id="submit-report-btn" class="primary-btn" style="width: 100%;">Submit Report</button>
+            <div id="report-status" style="margin-top: 1rem; font-size: 0.9rem;"></div>
+        </div>
+    </div>
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <script src="https://unpkg.com/leaflet.heat/dist/leaflet-heat.js"></script>
+    <!-- Custom JS -->
+    <script src="/static/js/app.js"></script>
+
+    <!-- PWA Service Worker Registration -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(reg => console.log('ServiceWorker registered!', reg))
+                    .catch(err => console.error('ServiceWorker failed', err));
+            });
+        }
+    </script>
+</body>
+
+</html>

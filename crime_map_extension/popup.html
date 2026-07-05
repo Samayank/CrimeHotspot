@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Safe Route Finder</title>
+    <iframe
+    width="400"
+    height="300"
+    frameborder="0" 
+    style="border:0"
+    src="https://www.google.com/maps/embed/v1/directions?key=AIzaSyCCzlW7IfXbg8DBBTMimiCn50WjwfOELrA&origin=lat,long&destination=lat,long"
+    allowfullscreen>
+</iframe>
+
+    <script src="popup.js" defer></script>
+    <style>
+        body { font-family: Arial, sans-serif; width: 350px; }
+        #map { height: 300px; width: 100%; }
+    </style>
+</head>
+<body>
+    <h2>Enter Coordinates</h2>
+    <label>Source Latitude:</label> <input type="text" id="sourceLat"><br>
+    <label>Source Longitude:</label> <input type="text" id="sourceLon"><br>
+    <label>Destination Latitude:</label> <input type="text" id="destLat"><br>
+    <label>Destination Longitude:</label> <input type="text" id="destLon"><br>
+    <button id="getRouteBtn">Find Safe Route</button>
+    <div id="map"></div>
+</body>
+</html>

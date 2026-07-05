@@ -1,116 +1,100 @@
-# Crime Hotspot
-crime hotspot detection using geofencing and geospatial anyalsis
+# Crime Hotspot Detection & Safe Route Planner 🛡️🗺️
 
-Overview
+Crime Hotspot Detection is an advanced web application and Progressive Web App (PWA) designed to enhance pedestrian and commuter safety. It identifies crime-prone areas in real-time and provides optimized, safer travel routes. The system leverages Leaflet.js for interactive dynamic mapping, OpenRouteService API for navigation, and a robust Flask backend for geospatial processing.
 
-Crime Hotspot Detection is a web application that identifies crime-prone areas and provides an alternate safer route to users. The system leverages Folium for interactive mapping and OpenRouteService API for route optimization while avoiding high-crime areas.
+## 🚀 Key Features
 
-Features
+*   **Interactive Dynamic Mapping:** Replaced static maps with a responsive **Leaflet.js** frontend interface, providing smooth panning, zooming, and dynamic layers.
+*   **Intelligent Route Planning:** Calculates routes avoiding high-crime zones using OpenRouteService. Users can select **Safety Profiles** (Balanced, Safest, Fastest) and specify the **Time of Travel** to get context-aware safe routes.
+*   **Live Crime Heatmap:** Toggleable heatmap showing historical and recent crime data, temporally filtered to match your travel time.
+*   **Crowdsourced Crime Reporting:** Right-click anywhere on the map to report live incidents. Features a smart validation system (instant validation for high-stakes crimes like Assault/Homicide, and multi-report thresholds for minor incidents).
+*   **Live Local News Ticker:** A background scheduler scrapes the latest localized crime news and alerts, displaying them dynamically on the map interface.
+*   **Statistics Dashboard:** Real-time on-map overlay displaying total active incidents and top crime categories for the selected region.
+*   **PWA Support:** Installable as a Progressive Web App with offline capabilities and a native app-like experience on mobile devices.
+*   **Chrome Extension (Optional):** Integration to overlay crime hotspots directly onto Google Maps via the included extension.
 
-Crime Hotspot Visualization: Displays crime-prone areas on a map using Folium.
+## 🛠️ Tech Stack
 
-Crime Risk Level Prediction: Uses a neural network model to analyze crime data and predict risk levels.
+**Frontend:**
+*   HTML5, CSS3 (Modern Glassmorphism UI), JavaScript (ES6+)
+*   **Leaflet.js** & Leaflet.heat for map rendering and heatmaps
+*   Service Workers & Web App Manifest for PWA Support
 
-Alternate Safer Route Suggestion: Provides a safer route option avoiding crime hotspots using OpenRouteService.
+**Backend & Data Processing:**
+*   **Python, Flask**: RESTful API and web server framework
+*   **Pandas, Shapely**: Geospatial data manipulation and zone buffering
+*   **APScheduler**: Background jobs for live news scraping
+*   **Spacy, Geopy**: NLP and Geocoding services
 
-Google Maps Integration: Displays routes and hotspots in a Chrome extension.
+**APIs:**
+*   **OpenRouteService API**: For routing and navigation
+*   **News Scraping**: Custom background services fetching headlines
 
-Real-Time Data Processing: Processes large datasets (~40K+ crime entries across India).
+## ⚙️ Installation and Setup
 
-Tech Stack
+### Prerequisites
+*   Python 3.8+
+*   Node.js (optional, for extension development)
+*   API keys for OpenRouteService
 
-Backend: Python, Flask
+### Steps
 
-Frontend: JavaScript, HTML, CSS, Google Maps API
+1.  **Clone the repository:**
+    ```bash
+    git clone https://github.com/yourusername/crime-hotspot-detection.git
+    cd crime-hotspot-detection
+    ```
 
-Database: PostgreSQL / SQLite (optional)
+2.  **Set up a virtual environment:**
+    ```bash
+    python -m venv venv
+    source venv/bin/activate  # On Windows use: venv\Scripts\activate
+    ```
 
-Machine Learning: TensorFlow / PyTorch for neural network-based predictions
+3.  **Install dependencies:**
+    ```bash
+    pip install -r requirements.txt
+    ```
 
-Mapping API: Folium, OpenRouteService API, Google Maps API
+4.  **Configure Environment Variables:**
+    Create a `.env` file in the root directory and add your API keys:
+    ```env
+    OPENROUTESERVICE_API_KEY=your_openrouteservice_api_key
+    ```
 
-Installation
+5.  **Run the application:**
+    ```bash
+    python app.py
+    ```
+    *The app will be available at `http://localhost:5000`.*
 
-Prerequisites
+6.  **Install Chrome Extension (Optional):**
+    *   Open `chrome://extensions/`
+    *   Enable **Developer Mode**
+    *   Click **Load Unpacked** and select the `crime_map_extension` folder.
 
-Python 3.8+
+## 📖 Usage
 
-Node.js (for Chrome extension)
+1.  **Launch the App**: Open the web application. You'll be greeted by a landing page to auto-detect your location or manually enter a city.
+2.  **Find a Safe Route**: Enter your Start and Destination points, select your Travel Time via the slider, choose a Safety Profile, and hit **Find Safe Route**. The map will display the Primary Route and an Alternative Safe Route if necessary.
+3.  **Toggle Heatmap**: Use the sidebar button to visualize crime density.
+4.  **Report an Incident**: Right-click on any map location to open the Report Modal. Submit crime details to alert other users.
+5.  **Stay Informed**: Watch the scrolling news ticker for the latest local safety updates.
 
-PostgreSQL (if using a database)
+## 📡 Core API Endpoints
 
-API keys for Google Maps API and OpenRouteService API
+*   `GET /api/crimes?time=HH:MM` - Fetches sample crime data points for the heatmap, filtered by the specified time window.
+*   `POST /api/safe-route` - Calculates the safest route between start and destination coordinates based on the selected safety profile.
+*   `GET /api/headline?location=City` - Retrieves the latest scraped crime news headline for the user's location.
+*   `POST /api/report-crime` - Accepts crowdsourced crime reports, with threshold checks for low-stakes crimes.
 
-Steps
+## 🤝 Contributing
 
-Clone the repository
+1.  Fork the repo
+2.  Create a new branch (`git checkout -b feature-branch`)
+3.  Commit your changes (`git commit -m 'Add feature'`)
+4.  Push to the branch (`git push origin feature-branch`)
+5.  Open a Pull Request
 
-git clone https://github.com/yourusername/crime-hotspot-detection.git
-cd crime-hotspot-detection
-
-Set up a virtual environment
-
-python -m venv venv
-source venv/bin/activate  # On Windows use: venv\Scripts\activate
-
-Install dependencies
-
-pip install -r requirements.txt
-
-Set up environment variables (create a .env file)
-
-GOOGLE_MAPS_API_KEY=your_google_maps_api_key
-OPENROUTESERVICE_API_KEY=your_openrouteservice_api_key
-
-Run the application
-
-python app.py
-
-Install Chrome Extension (Optional)
-
-Open chrome://extensions/
-
-Enable Developer Mode
-
-Click Load Unpacked and select the chrome_extension folder
-
-Usage
-
-Open the web application and enter a location to check crime hotspots.
-
-Use the "Find Safer Route" button to get a crime-free alternate route.
-
-Chrome extension automatically overlays crime hotspots on Google Maps.
-
-Route Calculation Logic
-
-Load Crime Data: Reads crime data from a CSV file containing latitude and longitude.
-
-Generate Crime Zones: Clusters high-crime areas and creates polygons using Shapely.
-
-Get Routes: Fetches routes from OpenRouteService API while avoiding high-crime zones.
-
-Validate Safer Routes: Checks if the primary route intersects a crime zone and suggests an alternative route if necessary.
-
-Display on Map: Uses Folium to visualize the routes and crime zones.
-
-API Endpoints
-
-/predict – Predicts crime risk for a given location.
-
-/hotspots – Returns geo-coordinates of high-crime areas.
-
-/safe-route – Returns an optimized safer route avoiding crime hotspots.
-
-Contributing
-
-Fork the repo
-
-Create a new branch (git checkout -b feature-branch)
-
-Commit changes (git commit -m 'Add feature')
-
-Push to GitHub (git push origin feature-branch)
-
-Open a pull request
-
+---
+*Developed to make everyday navigation safer and smarter.*
