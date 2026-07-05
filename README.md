@@ -1,6 +1,6 @@
-# Crime Hotspot Detection & Safe Route Planner 🛡️🗺️
+# Crime Hotspot Detection
 
-Crime Hotspot Detection is an advanced web application and Progressive Web App (PWA) designed to enhance pedestrian and commuter safety. It identifies crime-prone areas in real-time and provides optimized, safer travel routes. The system leverages Leaflet.js for interactive dynamic mapping, OpenRouteService API for navigation, and a robust Flask backend for geospatial processing.
+CrimeHotspot is an advanced web application and Progressive Web App (PWA) designed to enhance pedestrian and commuter safety. It identifies crime-prone areas in real-time and provides optimized, safer travel routes. The system leverages Leaflet.js for interactive dynamic mapping, OpenRouteService API for navigation, and a robust Flask backend for geospatial processing.
 
 ## 🚀 Key Features
 
